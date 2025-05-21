@@ -3,11 +3,10 @@
 
 nextflow.enable.dsl=2
 
-params {
-  faa = "genome/genome.faa"
-  outdir = "results"
-  transcript_csv = "omics/transcript_abundance.csv"
-}
+// Define parameters
+params.faa = "genome/genome.faa"
+params.outdir = "results"
+params.transcript_csv = "omics/transcript_abundance.csv"
 
 workflow {
   fasta_ch = Channel.fromPath(params.faa)
@@ -24,8 +23,6 @@ process build_model {
 
   output:
     path "draft_model.xml"
-
-  container "carveme/carveme"
 
   script:
   """
