@@ -46,22 +46,22 @@ process integrate_transcriptomics {
   script:
   """
   pip install cobra pandas
-  python3 -c """
+  python3 -c '
 import pandas as pd
 from cobra.io import read_sbml_model, write_sbml_model
 from cobra.flux_analysis import single_gene_deletion
 
-model = read_sbml_model('draft_model.xml')
-tpm = pd.read_csv('transcript_abundance.csv')
-tpm_dict = dict(zip(tpm['gene'], tpm['TPM']))
-thresh = tpm['TPM'].quantile(0.25)
+model = read_sbml_model("${model_xml}")
+tpm = pd.read_csv("${transcript_file}")
+tpm_dict = dict(zip(tpm["gene"], tpm["TPM"]))
+thresh = tpm["TPM"].quantile(0.25)
 
 for gene in model.genes:
     if gene.id in tpm_dict and tpm_dict[gene.id] < thresh:
         gene.knock_out()
 
-write_sbml_model(model, 'model_with_constraints.xml')
-  """
+write_sbml_model(model, "model_with_constraints.xml")
+'
   """
 }
 
@@ -77,12 +77,12 @@ process simulate_fba {
   script:
   """
   pip install cobra
-  python3 -c """
+  python3 -c '
 from cobra.io import read_sbml_model
-model = read_sbml_model('model_with_constraints.xml')
+model = read_sbml_model("${curated_model}")
 sol = model.optimize()
-with open('fba_result.txt', 'w') as f:
-    f.write(f'Growth rate: {sol.objective_value:.4f}\n')
-  """
+with open("fba_result.txt", "w") as f:
+    f.write(f"Growth rate: {sol.objective_value:.4f}\\n")
+'
   """
 }
